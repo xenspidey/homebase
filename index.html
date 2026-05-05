@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeBase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #0e1018;
+  --bg-card:    #161923;
+  --bg-hover:   #1d2130;
+  --bg-raised:  #1f2438;
+  --border:     #252a3a;
+  --border-lt:  #2d3348;
+  --text:       #e2e4ef;
+  --text-2:     #8c91ae;
+  --text-3:     #555a74;
+  --accent:     #7c7fff;
+  --accent-dim: rgba(124,127,255,.15);
+  --green:      #4ade80;
+  --red:        #f87171;
+  --yellow:     #fbbf24;
+  --radius:     12px;
+  --radius-sm:  8px;
+  --trans:      0.14s ease;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-lt); border-radius: 3px; }
+
+a { color: inherit; text-decoration: none; }
+
+/* ── Layout ────────────────────────────────────── */
+.container { max-width: 1700px; margin: 0 auto; padding: 0 28px 48px; }
+
+/* ── Header ────────────────────────────────────── */
+.header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 0 20px;
+}
+
+.clock-block { line-height: 1.2; }
+
+.clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.date-line { font-size: .82rem; color: var(--text-2); margin-top: 3px; }
+.greeting  { font-size: .82rem; color: var(--text-3); margin-top: 2px; }
+
+.weather-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: .78rem;
+  color: var(--text-2);
+  margin-top: 4px;
+  cursor: default;
+}
+
+.weather-icon { font-size: 1rem; }
+
+/* ── Search ─────────────────────────────────────── */
+.search-wrap { max-width: 640px; width: 100%; margin: 0 auto; }
+
+.search-form { position: relative; }
+
+.search-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 13px 48px 13px 20px;
+  border-radius: 50px;
+  outline: none;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.search-input::placeholder { color: var(--text-3); }
+
+.search-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.engine-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.engine-btn {
+  font-size: .7rem;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--trans);
+}
+
+.engine-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Header-right ────────────────────────────────── */
+.header-actions { display: flex; gap: 8px; align-items: flex-start; }
+
+.icon-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 9px 13px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all var(--trans);
+  font-family: inherit;
+}
+
+.icon-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+/* ── Section chrome ──────────────────────────────── */
+.section { margin-top: 28px; }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.section-link {
+  font-size: .74rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 3px 8px;
+  border-radius: 6px;
+  transition: background var(--trans);
+}
+
+.section-link:hover { background: var(--accent-dim); }
+
+/* ── Cards / shared ──────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all var(--trans);
+}
+
+.card:hover { border-color: var(--border-lt); background: var(--bg-hover); }
+
+/* ── Sports ──────────────────────────────────────── */
+.sports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 10px;
+}
+
+.sport-card {
+  position: relative;
+  overflow: hidden;
+  padding: 14px 14px 12px;
+  cursor: pointer;
+}
+
+.sport-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--tc, var(--accent));
+  opacity: .9;
+}
+
+.sport-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+
+.sc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+
+.team-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.logo-fallback {
+  width: 34px;
+  height: 34px;
+  background: var(--bg-raised);
+  border-radius: 5px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: .58rem;
+  font-weight: 700;
+  color: var(--text-3);
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sc-name-block { flex: 1; min-width: 0; }
+.sc-name  { font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-league { font-size: .65rem; color: var(--text-3); margin-top: 1px; }
+
+.sc-record {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.sc-game {
+  border-top: 1px solid var(--border);
+  padding-top: 9px;
+}
+
+.sc-label {
+  font-size: .62rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 3px;
+}
+
+.sc-detail { font-size: .78rem; color: var(--text-2); line-height: 1.4; }
+
+.sc-score {
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+.sc-score.win  { color: var(--green); }
+.sc-score.loss { color: var(--red); }
+
+.live-pip {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  margin-right: 5px;
+  animation: blink 1.4s infinite;
+  vertical-align: middle;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.live-tag {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(239,68,68,.18);
+  border: 1px solid rgba(239,68,68,.4);
+  color: #f87171;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* Skeleton */
+.skel {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── Two-col bottom ──────────────────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  margin-top: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ── Bookmarks ───────────────────────────────────── */
+.bm-empty {
+  text-align: center;
+  padding: 44px 24px;
+  color: var(--text-3);
+}
+
+.bm-empty .em { font-size: 2.2rem; display: block; margin-bottom: 10px; }
+.bm-empty p { font-size: .83rem; line-height: 1.6; }
+
+.folder-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.ftab {
+  font-size: .72rem;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--trans);
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ftab:hover { border-color: var(--border-lt); color: var(--text); }
+.ftab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+.bm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 7px;
+}
+
+.bm-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: .78rem;
+  transition: all var(--trans);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.bm-item:hover {
+  border-color: var(--border-lt);
+  color: var(--text);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
+}
+
+.bm-fav {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.bm-name { overflow: hidden; text-overflow: ellipsis; }
+
+.bm-footer {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+/* ── Buttons ─────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  font-size: .78rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--trans);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-2);
+}
+
+.btn:hover { background: var(--bg-hover); color: var(--text); }
+
+.btn-accent {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-accent:hover { background: rgba(124,127,255,.25); }
+
+/* ── News ────────────────────────────────────────── */
+.news-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ntab {
+  font-size: .72rem;
+  padding: 4px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--trans);
+}
+
+.ntab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.ntab:hover:not(.active) { border-color: var(--border-lt); color: var(--text); }
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 540px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.news-item {
+  display: block;
+  padding: 11px 13px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--trans);
+}
+
+.news-item:hover { border-color: var(--border-lt); background: var(--bg-hover); }
+
+.news-title {
+  font-size: .83rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.news-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.news-src  { font-size: .68rem; color: var(--accent); }
+.news-time { font-size: .68rem; color: var(--text-3); }
+
+.news-msg { text-align: center; padding: 36px; color: var(--text-3); font-size: .83rem; }
+
+/* ── Modal ───────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+
+.overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-lt);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: min(540px, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 20px; }
+
+.modal-section { margin-bottom: 22px; }
+.modal-label {
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .82rem;
+}
+
+.team-row:last-child { border-bottom: none; }
+
+.team-row input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; }
+.team-row label { flex: 1; cursor: pointer; }
+
+.team-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+input[type=file] { display: none; }
+
+/* ── Footer ──────────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 20px 0 6px;
+  font-size: .68rem;
+  color: var(--text-3);
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── HEADER ──────────────────────────────────── -->
+  <header class="header">
+    <div class="clock-block">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date-line" id="dateline">Loading…</div>
+      <div class="greeting" id="greeting"></div>
+      <div class="weather-inline" id="weather-widget" style="display:none">
+        <span class="weather-icon" id="w-icon"></span>
+        <span id="w-temp"></span>
+        <span id="w-desc"></span>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <form class="search-form" id="search-form">
+        <input class="search-input" id="search-input" type="text"
+               placeholder="Search the web…  ( press / to focus )"
+               autocomplete="off" spellcheck="false">
+        <span class="search-icon">⌕</span>
+      </form>
+      <div class="engine-row" id="engine-row">
+        <button class="engine-btn" data-engine="google">Google</button>
+        <button class="engine-btn" data-engine="ddg">DuckDuckGo</button>
+        <button class="engine-btn" data-engine="bing">Bing</button>
+        <button class="engine-btn" data-engine="brave">Brave</button>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- ── SPORTS ──────────────────────────────────── -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-title">⚡ Sports</span>
+      <button class="section-link" id="refresh-sports">↻ Refresh</button>
+    </div>
+    <div class="sports-grid" id="sports-grid"></div>
+  </section>
+
+  <!-- ── BOTTOM TWO-COL ──────────────────────────── -->
+  <div class="two-col">
+
+    <!-- BOOKMARKS -->
+    <section class="section" style="margin-top:0">
+      <div class="section-head">
+        <span class="section-title">🔖 Bookmarks</span>
+        <button class="section-link" id="import-btn-head">+ Import</button>
+      </div>
+
+      <div id="bm-empty" class="bm-empty card" style="padding:40px 20px">
+        <span class="em">🔖</span>
+        <p>No bookmarks yet.<br>Import your browser export to get started.</p>
+        <button class="btn btn-accent" style="margin-top:16px" id="import-btn-empty">
+          📁 Import Bookmarks File
+        </button>
+      </div>
+
+      <div id="bm-loaded" style="display:none">
+        <div class="folder-tabs" id="folder-tabs"></div>
+        <div class="bm-grid" id="bm-grid"></div>
+        <div class="bm-footer">
+          <button class="btn" id="reimport-btn">↻ Re-import</button>
+          <button class="btn" id="clear-bm-btn">🗑 Clear</button>
+        </div>
+      </div>
+
+      <input type="file" id="bm-file" accept=".html,.htm">
+    </section>
+
+    <!-- NEWS -->
+    <section class="section" style="margin-top:0">
+      <div class="section-head">
+        <span class="section-title">📰 News</span>
+        <button class="section-link" id="refresh-news">↻ Refresh</button>
+      </div>
+      <div class="news-tabs" id="news-tabs">
+        <button class="ntab active" data-cat="general">General</button>
+        <button class="ntab" data-cat="tech">Tech</button>
+        <button class="ntab" data-cat="science">Science</button>
+        <button class="ntab" data-cat="local">Local</button>
+        <button class="ntab" data-cat="nerdy">Nerdy</button>
+      </div>
+      <div class="news-list" id="news-list">
+        <div class="news-msg">Loading…</div>
+      </div>
+    </section>
+
+  </div><!-- /two-col -->
+
+  <div class="footer">HomeBase &nbsp;·&nbsp; Press <kbd style="background:var(--bg-raised);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:.7rem">/</kbd> to search</div>
+</div><!-- /container -->
+
+<!-- ── SETTINGS MODAL ───────────────────────────── -->
+<div class="overlay" id="settings-overlay">
+  <div class="modal">
+    <div class="modal-title">⚙ Settings</div>
+
+    <div class="modal-section">
+      <div class="modal-label">Search Engine</div>
+      <div class="engine-row" id="engine-row-modal" style="justify-content:flex-start"></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Active Teams</div>
+      <div id="teams-modal"></div>
+      <p style="font-size:.72rem;color:var(--text-3);margin-top:10px">
+        Toggle teams on/off. Reload page to apply. Custom team support coming soon.
+      </p>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">News Cache</div>
+      <button class="btn" id="clear-news-cache">🗑 Clear All News Cache</button>
+      <p style="font-size:.72rem;color:var(--text-3);margin-top:8px">News is cached for 1 hour per category.</p>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-label">Bookmarks</div>
+      <button class="btn" id="import-btn-modal">📁 Import / Replace Bookmarks</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-accent" id="close-settings">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   CONFIGURATION
+══════════════════════════════════════════════════════════════ */
+const SEARCH_ENGINES = {
+  google: 'https://www.google.com/search?q=',
+  ddg:    'https://duckduckgo.com/?q=',
+  bing:   'https://www.bing.com/search?q=',
+  brave:  'https://search.brave.com/search?q='
+};
+
+const TEAMS = [
+  { id:'bengals',  name:'Cincinnati Bengals', short:'Bengals',    league:'NFL',  sport:'football', esl:'nfl',             eid:'4',     color:'#FB4F14', abbr:'CIN' },
+  { id:'reds',     name:'Cincinnati Reds',    short:'Reds',       league:'MLB',  sport:'baseball', esl:'mlb',             eid:'17',    color:'#C6011F', abbr:'CIN' },
+  { id:'fcc',      name:'FC Cincinnati',      short:'FC Cincy',   league:'MLS',  sport:'soccer',   esl:'usa.1',           eid:'18267', color:'#003087', abbr:'CIN', mlsSlug:'fc-cincinnati' },
+  { id:'fcc2',     name:'FC Cincinnati 2',    short:'FCC2',       league:'MLS Next Pro', sport:'soccer', esl:'usa.open', eid:'22553', color:'#C60000', abbr:'FCC2', scheduleUrl:'https://www.mlsnextpro.com/clubs/fc-cincinnati-2/schedule/' },
+  { id:'miami',    name:'Inter Miami CF',     short:'Inter Miami',league:'MLS',  sport:'soccer',   esl:'usa.1',           eid:'20232', color:'#231f20', abbr:'MIA', mlsSlug:'inter-miami-cf' },
+  { id:'bearcats', name:'Cincinnati Bearcats',short:'Bearcats',   league:'NCAA', sport:'football', esl:'college-football',eid:'2132',  color:'#E00122', abbr:'UC',  ncaaSlug:'cincinnati-bearcats' },
+  { id:'buckeyes', name:'Ohio State Buckeyes',short:'Buckeyes',   league:'NCAA', sport:'football', esl:'college-football',eid:'194',   color:'#BB0000', abbr:'OSU', ncaaSlug:'ohio-state-buckeyes' },
+  { id:'bobcats',  name:'Ohio Bobcats',       short:'Bobcats',    league:'NCAA', sport:'football', esl:'college-football',eid:'195',   color:'#00694E', abbr:'OU',  ncaaSlug:'ohio-bobcats' }
+];
+
+const NEWS_FEEDS = {
+  general: [
+    { name:'AP News',   url:'https://feeds.apnews.com/rss/topnews' },
+    { name:'Reuters',   url:'https://feeds.reuters.com/reuters/topNews' },
+    { name:'BBC',       url:'https://feeds.bbci.co.uk/news/rss.xml' }
+  ],
+  tech: [
+    { name:'Hacker News', url:'https://hnrss.org/frontpage' },
+    { name:'The Verge',   url:'https://www.theverge.com/rss/index.xml' },
+    { name:'Ars Technica',url:'https://feeds.arstechnica.com/arstechnica/index' }
+  ],
+  science: [
+    { name:'NASA',         url:'https://www.nasa.gov/rss/dyn/breaking_news.rss' },
+    { name:'ScienceDaily', url:'https://www.sciencedaily.com/rss/top/science.xml' },
+    { name:'New Scientist',url:'https://www.newscientist.com/feed/home/' }
+  ],
+  local: [
+    { name:'Cincinnati.com', url:'https://www.cincinnati.com/arcio/rss/' },
+    { name:'Cincinnati (Google News)', url:'https://news.google.com/rss/search?q=cincinnati+ohio&hl=en-US&gl=US&ceid=US:en' }
+  ],
+  nerdy: [
+    { name:'io9',        url:'https://gizmodo.com/c/io9/rss' },
+    { name:'Polygon',    url:'https://www.polygon.com/rss/index.xml' },
+    { name:'BoingBoing', url:'https://boingboing.net/feed' },
+    { name:'Ars Technica Gadgets', url:'https://feeds.arstechnica.com/arstechnica/gadgets' }
+  ]
+};
+
+const WMO = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'❄️',75:'❄️',
+  80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+
+const WMO_DESC = {
+  0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Overcast',
+  45:'Foggy',48:'Foggy',
+  51:'Light Drizzle',53:'Drizzle',55:'Heavy Drizzle',
+  61:'Light Rain',63:'Rain',65:'Heavy Rain',
+  71:'Light Snow',73:'Snow',75:'Heavy Snow',
+  80:'Showers',81:'Heavy Showers',82:'Violent Showers',
+  95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'
+};
+
+// Proxy tried in order; first success wins
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+];
+const SPORTS_TTL   = 5  * 60 * 1000;
+const NEWS_TTL     = 60 * 60 * 1000;
+const WEATHER_TTL  = 30 * 60 * 1000;
+const CACHE_VER    = 'v5'; // bump to force-clear stale sport caches
+
+/* ══════════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════════ */
+const S = {
+  engine:    localStorage.getItem('engine')    || 'google',
+  newsCat:   'general',
+  bmFolder:  '__all__',
+  bookmarks: JSON.parse(localStorage.getItem('bookmarks') || 'null'),
+  hiddenTeams: JSON.parse(localStorage.getItem('hiddenTeams') || '[]')
+};
+
+/* ══════════════════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════════════════ */
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function ago(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const m = Math.floor((Date.now() - d) / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+async function fetchTimeout(url, ms = 12000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(id);
+    return r;
+  } catch(e) { clearTimeout(id); throw e; }
+}
+
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+}
+
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLOCK
+══════════════════════════════════════════════════════════════ */
+function tickClock() {
+  const now   = new Date();
+  const time  = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+  const date  = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  const h     = now.getHours();
+  const greet = h < 5 ? 'Up late, Brian?' : h < 12 ? 'Good morning, Brian' : h < 17 ? 'Good afternoon, Brian' : h < 21 ? 'Good evening, Brian' : 'Good night, Brian';
+
+  document.getElementById('clock').textContent    = time;
+  document.getElementById('dateline').textContent = date;
+  document.getElementById('greeting').textContent = greet;
+}
+
+setInterval(tickClock, 1000);
+tickClock();
+
+/* ══════════════════════════════════════════════════════════════
+   WEATHER  (Open-Meteo, Cincinnati)
+══════════════════════════════════════════════════════════════ */
+async function loadWeather() {
+  const cached = lsGet('weather_cache');
+  if (cached && Date.now() - cached.ts < WEATHER_TTL) {
+    showWeather(cached);
+    return;
+  }
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=39.1031&longitude=-84.5120&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York';
+    const r = await fetchTimeout(url, 8000);
+    const d = await r.json();
+    const data = {
+      ts:   Date.now(),
+      temp: Math.round(d.current.temperature_2m),
+      code: d.current.weather_code,
+      wind: Math.round(d.current.wind_speed_10m)
+    };
+    lsSet('weather_cache', data);
+    showWeather(data);
+  } catch {}
+}
+
+function showWeather(d) {
+  const icon = WMO[d.code] || '🌡️';
+  const desc = WMO_DESC[d.code] || '';
+  document.getElementById('w-icon').textContent = icon;
+  document.getElementById('w-temp').textContent = `${d.temp}°F`;
+  document.getElementById('w-desc').textContent = desc;
+  document.getElementById('weather-widget').style.display = 'inline-flex';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SEARCH
+══════════════════════════════════════════════════════════════ */
+function initSearch() {
+  function applyEngine() {
+    document.querySelectorAll('.engine-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.engine === S.engine)
+    );
+  }
+
+  document.querySelectorAll('.engine-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      S.engine = b.dataset.engine;
+      lsSet('engine', S.engine);
+      applyEngine();
+      // sync modal row too
+      document.querySelectorAll('#engine-row-modal .engine-btn').forEach(mb =>
+        mb.classList.toggle('active', mb.dataset.engine === S.engine)
+      );
+    });
+  });
+
+  applyEngine();
+
+  document.getElementById('search-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) return;
+    if (/^(https?:\/\/|www\.)/.test(q)) {
+      location.href = q.startsWith('http') ? q : 'https://' + q;
+    } else {
+      location.href = SEARCH_ENGINES[S.engine] + encodeURIComponent(q);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    const inp = document.getElementById('search-input');
+    if (e.key === '/' && document.activeElement !== inp && !document.getElementById('settings-overlay').classList.contains('open')) {
+      e.preventDefault();
+      inp.focus();
+      inp.select();
+    }
+    if (e.key === 'Escape') {
+      document.getElementById('settings-overlay').classList.remove('open');
+      inp.blur();
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SPORTS
+══════════════════════════════════════════════════════════════ */
+
+// ESPN returns score as either "24" (string) or {value:24, displayValue:"24"} (object)
+function scoreVal(s) {
+  if (s == null) return '?';
+  if (typeof s === 'string' || typeof s === 'number') return String(s);
+  return s.displayValue ?? String(s.value) ?? '?';
+}
+
+// Multi-strategy competitor finder: ID → team.id → name words → position fallback
+function findMine(competitors, tid, tname) {
+  if (!competitors?.length) return null;
+  const byId = competitors.find(c => c.id === tid || c.team?.id === tid);
+  if (byId) return byId;
+  const words = tname.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const byName = competitors.find(c =>
+    words.some(w => (c.team?.displayName ?? '').toLowerCase().includes(w))
+  );
+  return byName ?? competitors[0]; // last resort: assume first competitor is ours
+}
+
+
+function logoUrl(t) {
+  if (t.sport === 'soccer')             return `https://a.espncdn.com/i/teamlogos/soccer/500/${t.eid}.png`;
+  if (t.esl  === 'college-football')    return `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.eid}.png`;
+  return `https://a.espncdn.com/i/teamlogos/${t.sport}/${t.esl}/500/${t.abbr.toLowerCase()}.png`;
+}
+
+function teamLink(t) {
+  if (t.scheduleUrl)                 return t.scheduleUrl;
+  if (t.sport === 'soccer')          return `https://www.mlssoccer.com/clubs/${t.mlsSlug}/`;
+  if (t.esl  === 'college-football') return `https://www.ncaa.com/schools/${t.ncaaSlug}/sports/football/fbs`;
+  return `https://www.espn.com/${t.esl}/team/_/name/${t.abbr.toLowerCase()}`;
+}
+
+async function fetchTeam(t) {
+  const key = `sport_${CACHE_VER}_${t.id}`;
+  const cached = lsGet(key);
+  if (cached && Date.now() - cached.ts < SPORTS_TTL) return cached;
+
+  try {
+    const eid  = t.eid; // IDs are now correct — skip dynamic resolution
+    const base = `https://site.api.espn.com/apis/site/v2/sports/${t.sport}/${t.esl}`;
+    const seasonParam = t.sport === 'soccer' ? `?season=${new Date().getFullYear()}` : '';
+    const [tr, sr] = await Promise.allSettled([
+      fetchTimeout(`${base}/teams/${eid}`),
+      fetchTimeout(`${base}/teams/${eid}/schedule${seasonParam}`)
+    ]);
+
+    let teamJson = null, schedJson = null;
+    if (tr.status === 'fulfilled' && tr.value.ok) teamJson  = await tr.value.json();
+    if (sr.status === 'fulfilled' && sr.value.ok) schedJson = await sr.value.json();
+
+    const result = buildTeamData(t, eid, teamJson, schedJson);
+    lsSet(key, result);
+    return result;
+  } catch {
+    return { ts: Date.now(), t, record: null, lastGame: null, nextGame: null };
+  }
+}
+
+function buildTeamData(t, eid, tj, sj) {
+  let record = null, lastGame = null, nextGame = null;
+
+  if (tj?.team?.record?.items?.[0]?.summary) {
+    record = tj.team.record.items[0].summary;
+  }
+
+  // NCAA football is off-season Jan–Jul; flag it so card shows sensibly
+  const isFootballOffseason = t.esl === 'college-football' &&
+    [0,1,2,3,4,5,6].includes(new Date().getMonth()); // Jan–Jul
+
+  if (sj?.events) {
+    const now    = new Date();
+    const events = sj.events;
+
+    // Live game?
+    const live = events.find(ev => {
+      const st = ev.competitions?.[0]?.status?.type;
+      return st && !st.completed && st.state === 'in';
+    });
+
+    if (live) {
+      const comp = live.competitions[0];
+      const mine = findMine(comp.competitors, eid, t.name);
+      const opp  = comp.competitors?.find(c => c !== mine);
+      nextGame = {
+        live:   true,
+        score:  `${scoreVal(mine?.score)} – ${scoreVal(opp?.score)}`,
+        detail: comp.status?.type?.detail || 'In Progress',
+        opp:    opp?.team?.displayName || opp?.team?.abbreviation || '?'
+      };
+    } else {
+      // Sort explicitly — ESPN returns events newest-first, so we can't rely on array order
+      const past   = events
+        .filter(ev => new Date(ev.date) < now && ev.competitions?.[0]?.status?.type?.completed)
+        .sort((a, b) => new Date(a.date) - new Date(b.date)); // oldest → newest
+      const future = events
+        .filter(ev => new Date(ev.date) >= now)
+        .sort((a, b) => new Date(a.date) - new Date(b.date)); // soonest first
+
+      if (past.length) {
+        const last = past[past.length - 1];
+        const comp = last.competitions[0];
+        const mine = findMine(comp.competitors, eid, t.name);
+        const opp  = comp.competitors?.find(c => c !== mine);
+        const ha   = mine?.homeAway === 'home' ? 'vs' : '@';
+        lastGame = {
+          result: mine?.winner === true ? 'W' : mine?.winner === false ? 'L' : null,
+          score:  `${scoreVal(mine?.score)} – ${scoreVal(opp?.score)}`,
+          opp:    `${ha} ${opp?.team?.abbreviation || '?'}`,
+          date:   new Date(last.date).toLocaleDateString('en-US', { month:'short', day:'numeric' })
+        };
+      }
+
+      if (future.length) {
+        const next = future[0];
+        const comp = next.competitions[0];
+        const mine = findMine(comp.competitors, eid, t.name);
+        const opp  = comp.competitors?.find(c => c !== mine);
+        const ha   = mine?.homeAway === 'home' ? 'vs' : '@';
+        const gd   = new Date(next.date);
+        nextGame = {
+          live:    false,
+          opp:     `${ha} ${opp?.team?.displayName || opp?.team?.abbreviation || '?'}`,
+          date:    gd.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }),
+          time:    gd.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true }),
+          isToday: gd.toDateString() === now.toDateString()
+        };
+      }
+    }
+  }
+
+  // NCAA football off-season: show last result if we have it, tag as off-season
+  if (isFootballOffseason && !nextGame) {
+    nextGame = { offseason: true };
+  }
+
+  return { ts: Date.now(), t, record, lastGame, nextGame };
+}
+
+function renderSportCard(d) {
+  const { t, record, lastGame, nextGame } = d;
+  const tc = t.color.startsWith('#') ? t.color : '#' + t.color;
+
+  let gameHtml = '';
+  if (nextGame?.live) {
+    gameHtml = `
+      <div class="sc-game">
+        <span class="live-tag"><span class="live-pip"></span>LIVE</span>
+        <div class="sc-score">${esc(nextGame.opp)}</div>
+        <div class="sc-detail">${esc(nextGame.score)} · ${esc(nextGame.detail)}</div>
+      </div>`;
+  } else if (nextGame) {
+    gameHtml = `
+      <div class="sc-game">
+        <div class="sc-label">${nextGame.isToday ? '🔴 Today' : 'Next Game'}</div>
+        <div class="sc-detail">${esc(nextGame.opp)}</div>
+        <div class="sc-detail" style="color:var(--text-3)">${esc(nextGame.date)} · ${esc(nextGame.time)}</div>
+      </div>`;
+  } else if (lastGame) {
+    const cls = lastGame.result === 'W' ? 'win' : lastGame.result === 'L' ? 'loss' : '';
+    gameHtml = `
+      <div class="sc-game">
+        <div class="sc-label">Last Game</div>
+        <div class="sc-score ${cls}">${lastGame.result ? lastGame.result + '  ' : ''}${esc(lastGame.score)}</div>
+        <div class="sc-detail" style="color:var(--text-3)">${esc(lastGame.opp)} · ${esc(lastGame.date)}</div>
+      </div>`;
+  } else if (nextGame?.offseason) {
+    gameHtml = `
+      <div class="sc-game">
+        <div class="sc-label">Season</div>
+        <div class="sc-detail" style="color:var(--text-3)">Off Season · Fall ${new Date().getFullYear()}</div>
+        ${lastGame ? `<div class="sc-detail" style="font-size:.72rem;margin-top:3px">Last: <span class="${lastGame.result==='W'?'sc-score win':lastGame.result==='L'?'sc-score loss':''}">${lastGame.result ? lastGame.result+' ' : ''}${esc(lastGame.score)}</span></div>` : ''}
+      </div>`;
+  } else {
+    const schedHref = teamLink(t);
+    gameHtml = `
+      <div class="sc-game">
+        <a href="${schedHref}" target="_blank" rel="noopener"
+           style="font-size:.75rem;color:var(--accent);text-decoration:none"
+           onclick="event.stopPropagation()">📅 View Schedule →</a>
+      </div>`;
+  }
+
+  return `
+    <div class="card sport-card" style="--tc:${tc}"
+         onclick="window.open('${teamLink(t)}','_blank')" title="Open ${esc(t.name)}">
+      <div class="sc-head">
+        <img class="team-logo" src="${logoUrl(t)}" alt="${esc(t.short)}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="logo-fallback">${esc(t.abbr)}</div>
+        <div class="sc-name-block">
+          <div class="sc-name">${esc(t.short)}</div>
+          <div class="sc-league">${esc(t.league)}</div>
+        </div>
+        ${record ? `<div class="sc-record">${esc(record)}</div>` : ''}
+      </div>
+      ${gameHtml}
+    </div>`;
+}
+
+function skelCard() {
+  return `<div class="card sport-card" style="--tc:#333">
+    <div class="sc-head">
+      <div class="skel" style="width:34px;height:34px;border-radius:5px;flex-shrink:0"></div>
+      <div style="flex:1">
+        <div class="skel" style="height:13px;width:75%;margin-bottom:6px"></div>
+        <div class="skel" style="height:10px;width:40%"></div>
+      </div>
+    </div>
+    <div class="sc-game" style="border-top:1px solid var(--border);padding-top:9px">
+      <div class="skel" style="height:10px;width:30%;margin-bottom:6px"></div>
+      <div class="skel" style="height:13px;width:80%"></div>
+    </div>
+  </div>`;
+}
+
+async function loadSports() {
+  const grid = document.getElementById('sports-grid');
+  const visible = TEAMS.filter(t => !S.hiddenTeams.includes(t.id));
+  grid.innerHTML = visible.map(skelCard).join('');
+  const results = await Promise.all(visible.map(fetchTeam));
+  grid.innerHTML = results.map(renderSportCard).join('');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NEWS
+══════════════════════════════════════════════════════════════ */
+function parseRSS(xml, src) {
+  const doc  = new DOMParser().parseFromString(xml, 'application/xml');
+  const items = Array.from(doc.querySelectorAll('item, entry')).slice(0, 12);
+  return items.map(el => {
+    const title   = el.querySelector('title')?.textContent?.trim() || '';
+    const linkEl  = el.querySelector('link');
+    const link    = linkEl?.textContent?.trim() || linkEl?.getAttribute('href') || '#';
+    const pubDate = el.querySelector('pubDate, published, updated')?.textContent?.trim() || '';
+    return { title, link, src, time: ago(pubDate) };
+  }).filter(x => x.title && x.link && x.link !== '#');
+}
+
+async function fetchFeed(feed) {
+  for (const proxy of PROXIES) {
+    try {
+      const r = await fetchTimeout(proxy(feed.url), 10000);
+      if (!r.ok) continue;
+      const items = parseRSS(await r.text(), feed.name);
+      if (items.length > 0) return items;
+    } catch {}
+  }
+  return [];
+}
+
+async function loadNews(cat) {
+  const list = document.getElementById('news-list');
+  const key  = `news_${cat}`;
+  const cached = lsGet(key);
+
+  if (cached && cached.items?.length > 0 && Date.now() - cached.ts < NEWS_TTL) {
+    list.innerHTML = renderNews(cached.items);
+    return;
+  }
+
+  list.innerHTML = '<div class="news-msg">Fetching headlines…</div>';
+  const feeds   = NEWS_FEEDS[cat] || [];
+  const buckets = await Promise.all(feeds.map(fetchFeed));
+
+  // Round-robin interleave for source variety
+  const items = [];
+  const max = Math.max(...buckets.map(b => b.length), 0);
+  for (let i = 0; i < max; i++)
+    for (const b of buckets)
+      if (b[i]) items.push(b[i]);
+
+  // Only cache if we actually got results
+  if (items.length > 0) lsSet(key, { ts: Date.now(), items });
+  list.innerHTML = renderNews(items);
+}
+
+function renderNews(items) {
+  if (!items?.length) return '<div class="news-msg">No headlines available — check your connection.</div>';
+  return items.map(x => `
+    <a class="news-item" href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">
+      <div class="news-title">${esc(x.title)}</div>
+      <div class="news-meta">
+        <span class="news-src">${esc(x.src)}</span>
+        <span class="news-time">${esc(x.time)}</span>
+      </div>
+    </a>`).join('');
+}
+
+function initNews() {
+  document.querySelectorAll('.ntab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      S.newsCat = tab.dataset.cat;
+      loadNews(S.newsCat);
+    });
+  });
+
+  document.getElementById('refresh-news').addEventListener('click', () => {
+    localStorage.removeItem(`news_${S.newsCat}`);
+    loadNews(S.newsCat);
+  });
+
+  // Load active tab immediately; pre-fetch all others in background
+  loadNews(S.newsCat);
+  Object.keys(NEWS_FEEDS)
+    .filter(cat => cat !== S.newsCat)
+    .forEach(cat => loadNews(cat));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOOKMARKS
+══════════════════════════════════════════════════════════════ */
+function faviconOf(url) {
+  try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`; }
+  catch { return null; }
+}
+
+function parseBookmarks(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const result = {};
+
+  function walk(dl, folder) {
+    const kids = Array.from(dl.children);
+    for (let i = 0; i < kids.length; i++) {
+      const c = kids[i];
+      if (c.tagName !== 'DT') continue;
+      const h3 = c.querySelector(':scope > h3');
+      const a  = c.querySelector(':scope > a');
+      if (h3) {
+        const name   = h3.textContent.trim() || 'Folder';
+        const nextDL = kids[i + 1];
+        if (nextDL?.tagName === 'DL') walk(nextDL, name);
+      } else if (a) {
+        const url = a.getAttribute('href') || '';
+        if (!url.startsWith('http')) continue;
+        if (!result[folder]) result[folder] = [];
+        result[folder].push({ name: a.textContent.trim() || url, url, icon: faviconOf(url) });
+      }
+    }
+  }
+
+  const root = doc.querySelector('dl');
+  if (root) walk(root, 'Bookmarks Bar');
+  return result;
+}
+
+function renderBookmarks() {
+  const bm = S.bookmarks;
+  if (!bm || !Object.keys(bm).length) {
+    document.getElementById('bm-empty').style.display  = 'block';
+    document.getElementById('bm-loaded').style.display = 'none';
+    return;
+  }
+  document.getElementById('bm-empty').style.display  = 'none';
+  document.getElementById('bm-loaded').style.display = 'block';
+
+  const folders = Object.keys(bm);
+  const tabsEl  = document.getElementById('folder-tabs');
+  tabsEl.innerHTML = `
+    <button class="ftab ${S.bmFolder === '__all__' ? 'active' : ''}" data-f="__all__">All</button>
+    ${folders.map(f => `<button class="ftab ${S.bmFolder === f ? 'active' : ''}" data-f="${esc(f)}" title="${esc(f)}">${esc(f)}</button>`).join('')}
+  `;
+  tabsEl.querySelectorAll('.ftab').forEach(b => {
+    b.addEventListener('click', () => {
+      S.bmFolder = b.dataset.f;
+      renderBookmarks();
+    });
+  });
+
+  const links = S.bmFolder === '__all__'
+    ? Object.values(bm).flat()
+    : (bm[S.bmFolder] || []);
+
+  document.getElementById('bm-grid').innerHTML = links.map(l => `
+    <a class="bm-item" href="${esc(l.url)}" title="${esc(l.name)}">
+      ${l.icon ? `<img class="bm-fav" src="${l.icon}" alt="" onerror="this.style.display='none'">` : ''}
+      <span class="bm-name">${esc(l.name)}</span>
+    </a>`).join('');
+}
+
+function initBookmarks() {
+  const fileInput = document.getElementById('bm-file');
+
+  function openPicker() { fileInput.value = ''; fileInput.click(); }
+
+  fileInput.addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      S.bookmarks = parseBookmarks(ev.target.result);
+      lsSet('bookmarks', S.bookmarks);
+      renderBookmarks();
+    };
+    r.readAsText(f);
+  });
+
+  ['import-btn-head','import-btn-empty','reimport-btn','import-btn-modal'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', openPicker);
+  });
+
+  document.getElementById('clear-bm-btn').addEventListener('click', () => {
+    if (!confirm('Remove all imported bookmarks?')) return;
+    S.bookmarks = null;
+    localStorage.removeItem('bookmarks');
+    renderBookmarks();
+  });
+
+  renderBookmarks();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SETTINGS MODAL
+══════════════════════════════════════════════════════════════ */
+function initSettings() {
+  const overlay = document.getElementById('settings-overlay');
+
+  // Clone engine buttons into modal
+  const modalEngRow = document.getElementById('engine-row-modal');
+  Object.keys(SEARCH_ENGINES).forEach(eng => {
+    const b = document.createElement('button');
+    b.className = `engine-btn${S.engine === eng ? ' active' : ''}`;
+    b.dataset.engine = eng;
+    b.textContent = eng.charAt(0).toUpperCase() + eng.slice(1);
+    b.addEventListener('click', () => {
+      S.engine = eng;
+      lsSet('engine', eng);
+      document.querySelectorAll('.engine-btn').forEach(x =>
+        x.classList.toggle('active', x.dataset.engine === eng)
+      );
+    });
+    modalEngRow.appendChild(b);
+  });
+
+  // Teams toggles
+  const teamsEl = document.getElementById('teams-modal');
+  teamsEl.innerHTML = TEAMS.map(t => `
+    <div class="team-row">
+      <span class="team-dot" style="background:${t.color.startsWith('#')?t.color:'#'+t.color}"></span>
+      <input type="checkbox" id="chk-${t.id}" ${S.hiddenTeams.includes(t.id) ? '' : 'checked'}>
+      <label for="chk-${t.id}">${t.name} <span style="color:var(--text-3)">(${t.league})</span></label>
+    </div>`).join('');
+
+  teamsEl.querySelectorAll('input[type=checkbox]').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const id = chk.id.replace('chk-', '');
+      if (chk.checked) S.hiddenTeams = S.hiddenTeams.filter(x => x !== id);
+      else S.hiddenTeams.push(id);
+      lsSet('hiddenTeams', S.hiddenTeams);
+      loadSports();
+    });
+  });
+
+  document.getElementById('clear-news-cache').addEventListener('click', () => {
+    Object.keys(NEWS_FEEDS).forEach(c => localStorage.removeItem(`news_${c}`));
+    loadNews(S.newsCat);
+    alert('News cache cleared.');
+  });
+
+  document.getElementById('settings-btn').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('close-settings').addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+  document.getElementById('refresh-sports').addEventListener('click', () => {
+    TEAMS.forEach(t => localStorage.removeItem(`sport_${CACHE_VER}_${t.id}`));
+    loadSports();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  initSearch();
+  initNews();
+  initBookmarks();
+  initSettings();
+  loadSports();
+  loadWeather();
+  document.getElementById('search-input').focus();
+});
+</script>
+</body>
+</html>
