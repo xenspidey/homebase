@@ -299,6 +299,7 @@ a { color: inherit; text-decoration: none; }
 
 .sc-score.win  { color: var(--green); }
 .sc-score.loss { color: var(--red); }
+.sc-score.draw { color: var(--yellow); }
 
 .live-pip {
   display: inline-block;
@@ -802,7 +803,7 @@ const PROXIES = [
 const SPORTS_TTL   = 5  * 60 * 1000;
 const NEWS_TTL     = 60 * 60 * 1000;
 const WEATHER_TTL  = 30 * 60 * 1000;
-const CACHE_VER    = 'v5'; // bump to force-clear stale sport caches
+const CACHE_VER    = 'v6'; // bump to force-clear stale sport caches
 
 /* ══════════════════════════════════════════════════════════════
    STATE
@@ -1063,7 +1064,13 @@ function buildTeamData(t, eid, tj, sj) {
         const opp  = comp.competitors?.find(c => c !== mine);
         const ha   = mine?.homeAway === 'home' ? 'vs' : '@';
         lastGame = {
-          result: mine?.winner === true ? 'W' : mine?.winner === false ? 'L' : null,
+          result: (() => {
+            // winner:false is set for BOTH teams on a draw — compare scores instead
+            const ms = parseInt(scoreVal(mine?.score));
+            const os = parseInt(scoreVal(opp?.score));
+            if (!isNaN(ms) && !isNaN(os)) return ms > os ? 'W' : ms < os ? 'L' : 'D';
+            return mine?.winner === true ? 'W' : (opp?.winner === true ? 'L' : 'D');
+          })(),
           score:  `${scoreVal(mine?.score)} – ${scoreVal(opp?.score)}`,
           opp:    `${ha} ${opp?.team?.abbreviation || '?'}`,
           date:   new Date(last.date).toLocaleDateString('en-US', { month:'short', day:'numeric' })
@@ -1116,7 +1123,7 @@ function renderSportCard(d) {
         <div class="sc-detail" style="color:var(--text-3)">${esc(nextGame.date)} · ${esc(nextGame.time)}</div>
       </div>`;
   } else if (lastGame) {
-    const cls = lastGame.result === 'W' ? 'win' : lastGame.result === 'L' ? 'loss' : '';
+    const cls = lastGame.result === 'W' ? 'win' : lastGame.result === 'L' ? 'loss' : 'draw';
     gameHtml = `
       <div class="sc-game">
         <div class="sc-label">Last Game</div>
@@ -1438,8 +1445,33 @@ document.addEventListener('DOMContentLoaded', () => {
   initSettings();
   loadSports();
   loadWeather();
-  document.getElementById('search-input').focus();
+  grabSearchFocus();
 });
+
+/* ── Search focus management ─────────────────────────────────
+   Firefox takes address-bar focus on new tabs after the page
+   loads — we can't intercept keystrokes that go to browser
+   chrome, but we retry aggressively and re-grab on visibility
+   change (fires when the tab becomes active / user alt-tabs
+   back). A single click into the page always wins outright.  */
+function grabSearchFocus() {
+  const inp = document.getElementById('search-input');
+  if (!inp) return;
+  inp.focus();
+  // Retry at increasing intervals to outrun Firefox's address-bar grab
+  [50, 150, 350, 700].forEach(ms =>
+    setTimeout(() => { if (document.activeElement !== inp) inp.focus(); }, ms)
+  );
+}
+
+// Re-grab when the tab becomes visible (e.g. switching back to it)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) grabSearchFocus();
+});
+
+// Once the page has JS focus (user clicked anywhere in it),
+// keep the search box as the default for bare keypresses
+window.addEventListener('focus', grabSearchFocus);
 </script>
 </body>
 </html>
