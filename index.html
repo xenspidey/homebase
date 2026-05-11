@@ -908,6 +908,33 @@ function showWeather(d) {
 /* ══════════════════════════════════════════════════════════════
    SEARCH
 ══════════════════════════════════════════════════════════════ */
+
+// Decide whether the input is a URL to navigate to or a query to search.
+// Handles: https://... | http://... | www.* | bare domains (youtube.com,
+// en.wikipedia.org, reddit.com/r/aww) — anything with no spaces that ends
+// with a recognised TLD gets navigated; everything else is searched.
+function resolveInput(q) {
+  // Already has a protocol
+  if (/^https?:\/\//i.test(q)) return q;
+
+  // www. prefix — treat as URL
+  if (/^www\./i.test(q)) return 'https://' + q;
+
+  // Bare domain heuristic:
+  //   • no whitespace
+  //   • matches  something.tld  or  something.tld/path
+  //   • TLD is 2–13 letters (covers .com .io .co.uk .photography etc.)
+  if (
+    !/\s/.test(q) &&
+    /^[a-zA-Z0-9]([a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,13}(\/.*)?$/.test(q)
+  ) {
+    return 'https://' + q;
+  }
+
+  // Everything else → search
+  return SEARCH_ENGINES[S.engine] + encodeURIComponent(q);
+}
+
 function initSearch() {
   function applyEngine() {
     document.querySelectorAll('.engine-btn').forEach(b =>
@@ -933,11 +960,7 @@ function initSearch() {
     e.preventDefault();
     const q = document.getElementById('search-input').value.trim();
     if (!q) return;
-    if (/^(https?:\/\/|www\.)/.test(q)) {
-      location.href = q.startsWith('http') ? q : 'https://' + q;
-    } else {
-      location.href = SEARCH_ENGINES[S.engine] + encodeURIComponent(q);
-    }
+    location.href = resolveInput(q);
   });
 
   document.addEventListener('keydown', e => {
