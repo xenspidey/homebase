@@ -1468,53 +1468,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initSettings();
   loadSports();
   loadWeather();
-  grabSearchFocus();
 });
 
-/* ── Search focus management ─────────────────────────────────
-   Firefox re-grabs the address bar asynchronously after a
-   custom new-tab URL loads — one-shot retries lose the race.
-   Instead we run an interval every 100ms for 2 seconds so we
-   reclaim focus as fast as Firefox gives it away.
-   We also hook visibilitychange and window focus so switching
-   back to the tab always lands cursor in the search box.       */
-let _focusInterval = null;
-
-function grabSearchFocus() {
-  const inp = document.getElementById('search-input');
-  if (!inp) return;
-
-  function tryFocus() {
-    document.body.tabIndex = -1;
-    document.body.focus({ preventScroll: true });
-    inp.focus({ preventScroll: true });
-  }
-
-  // Clear any previous interval before starting a new one
-  clearInterval(_focusInterval);
-  tryFocus();
-
-  let ticks = 0;
-  _focusInterval = setInterval(() => {
-    if (document.activeElement === inp) {
-      // We have it — keep the interval alive a bit longer in case
-      // Firefox steals it back, then stop
-      if (++ticks > 5) clearInterval(_focusInterval);
-      return;
-    }
-    tryFocus();
-    if (++ticks > 20) clearInterval(_focusInterval); // hard stop at 2s
-  }, 100);
-}
-
-// Re-grab when tab becomes visible or window regains focus
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) grabSearchFocus();
-});
-window.addEventListener('focus', grabSearchFocus);
-
-// Also grab on full page load (fires later than DOMContentLoaded)
-window.addEventListener('load', grabSearchFocus);
+// Focus is handled by New Tab Override's "Set focus to web page" option.
+// The autofocus attribute on the search input does the rest.
 </script>
 </body>
 </html>
