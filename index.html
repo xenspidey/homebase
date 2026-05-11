@@ -610,8 +610,8 @@ input[type=file] { display: none; }
     <div class="search-wrap">
       <form class="search-form" id="search-form">
         <input class="search-input" id="search-input" type="text"
-               placeholder="Search the web…  ( press / to focus )"
-               autocomplete="off" spellcheck="false">
+               placeholder="Search the web…"
+               autocomplete="off" spellcheck="false" autofocus>
         <span class="search-icon">⌕</span>
       </form>
       <div class="engine-row" id="engine-row">
@@ -1449,28 +1449,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Search focus management ─────────────────────────────────
-   Firefox takes address-bar focus on new tabs after the page
-   loads — we can't intercept keystrokes that go to browser
-   chrome, but we retry aggressively and re-grab on visibility
-   change (fires when the tab becomes active / user alt-tabs
-   back). A single click into the page always wins outright.  */
+   Firefox focuses the address bar after a custom new-tab page
+   loads. We can't intercept keystrokes going to browser chrome,
+   but we can claw focus back as quickly as possible.
+   Strategy:
+   1. body.tabIndex=-1 + body.focus() pulls the page into focus
+      first; Firefox respects this before an input.focus() alone.
+   2. Retry at 50 → 150 → 350 → 700 → 1200ms to outlast any
+      post-load address-bar grabs the browser makes.
+   3. visibilitychange re-grabs whenever the tab is switched to.
+   4. window 'focus' re-grabs when the window itself regains focus.  */
 function grabSearchFocus() {
   const inp = document.getElementById('search-input');
   if (!inp) return;
-  inp.focus();
-  // Retry at increasing intervals to outrun Firefox's address-bar grab
-  [50, 150, 350, 700].forEach(ms =>
-    setTimeout(() => { if (document.activeElement !== inp) inp.focus(); }, ms)
+  // Pull the page itself into focus first
+  document.body.tabIndex = -1;
+  document.body.focus({ preventScroll: true });
+  inp.focus({ preventScroll: true });
+  [50, 150, 350, 700, 1200].forEach(ms =>
+    setTimeout(() => {
+      if (document.activeElement !== inp) {
+        document.body.focus({ preventScroll: true });
+        inp.focus({ preventScroll: true });
+      }
+    }, ms)
   );
 }
 
-// Re-grab when the tab becomes visible (e.g. switching back to it)
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) grabSearchFocus();
 });
 
-// Once the page has JS focus (user clicked anywhere in it),
-// keep the search box as the default for bare keypresses
 window.addEventListener('focus', grabSearchFocus);
 </script>
 </body>
